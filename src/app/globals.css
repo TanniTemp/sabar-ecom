@@ -9,6 +9,9 @@
     color: white;
   }
 }
+@utility no-scrollbar {
+  @apply [scrollbar-width:none] [&::-webkit-scrollbar]:hidden;
+}
 
 
 :root {
