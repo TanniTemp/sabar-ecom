@@ -1,0 +1,47 @@
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Product {
+  id             Int       @id @default(autoincrement()) @map("id")
+  name           String
+  slug           String    @unique
+  description    String?
+  price          Int
+  category       String     //'tshirt' or 'hoodies'
+  status         String    // 'active' or 'inactive'
+  is_featured    Boolean   @default(false)
+  keywords       Json?      //oversize, printed ,graphic
+  tags           Json?
+  rating         Float?     //system is rigged 
+  reviews_count  Int       @default(0)
+  images         Json       // {url:example, alt:example, is_primary}
+  variants       Json         // {size:s quantity:50}
+  created_at     DateTime  @default(now())
+  updated_at     DateTime  @updatedAt
+
+  @@map("products")
+}
+create table product (
+  id bigserial primary key,
+  name text not null,
+  slug text unique not null,
+  description text,
+  price numeric not null,
+  category text,
+  status text default 'active',
+  keywords text[],
+  tags text[],
+  rating numeric default 0,
+  reviews_count int default 0,
+  images jsonb,
+  variants jsonb,
+  created_at timestamp with time zone default now(),
+  updated_at timestamp with time zone default now()
+);

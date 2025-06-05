@@ -1,7 +1,59 @@
-
+"use client"
+import { supabase } from '@/lib/supabaseClient';
+import { Product } from '@/types/product';
+import {  ChevronLeft, ChevronRight } from 'lucide-react';
+import Image from 'next/image';
 import Link from "next/link";
+import { useEffect, useRef, useState } from 'react';
 
-export default function Home() {
+export default  function Home() {
+  const scrollRefTee = useRef<HTMLDivElement>(null);
+ const scrollRefHoodie = useRef<HTMLDivElement>(null);
+  const [tshirts, setTshirts] = useState<Product[]>([]);
+  const [hoodies, setHoodies] = useState<Product[]>([]);
+  const scrollTee = (direction: 'left' | 'right') => {
+    if (scrollRefTee.current) {
+      scrollRefTee.current.scrollBy({
+        left: direction === 'left' ? -300 : 300,
+        behavior: 'smooth',
+      });
+    }
+  };
+  const scrollHoodies = (direction: 'left' | 'right') => {
+    if (scrollRefHoodie.current) {
+      scrollRefHoodie.current.scrollBy({
+        left: direction === 'left' ? -300 : 300,
+        behavior: 'smooth',
+      });
+    }
+  };
+  
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      const { data: tshirtData } = await supabase
+        .from("product")
+        .select("*")
+        .eq("category", "tshirt")
+        .order("ordered_count", { ascending: false })
+        .limit(10);
+
+      const { data: hoodieData } = await supabase
+        .from("product")
+        .select("*")
+        .eq("category", "hoodie")
+        .order("ordered_count", { ascending: false })
+        .limit(10);
+
+      setTshirts(tshirtData || []);
+      setHoodies(hoodieData || []);
+    };
+
+    fetchProducts();
+  }, []);
+  console.log(tshirts, hoodies);
+
+   
   return (
     <div className="w-full min-h-screen overflow-x-hidden relative ">
 
@@ -13,6 +65,97 @@ export default function Home() {
       <Link href={""} className="md:text-4xl text-2xl text-black font-semibold bg-[#ffffff] md:px-14 md:py-4 px-4 py-2 mt-4 border-10 rounded-full border-white">
         SHOP NOW
       </Link></div>
+      </div>
+
+      {/* product list */}
+      <div className='w-full min-h-[80vh] justify-center py-4 gap-10 flex flex-col'>
+        {/* tshirt */}
+        <div>
+          <div className='bg-white md:p-4 p-2 md:px-7 shadow-md flex items-center justify-between text-black'> 
+            <h1 className='tracking-wider md:text-2xl font-semibold' >T-shirts</h1>
+            <div className='flex items-center justify-center gap-1 md:gap-3'>
+            <button onClick={() => scrollTee("left")} className='cursor-pointer'> <ChevronLeft className='  md:h-10 md:w-10' /> </button>
+            <button onClick={() => scrollTee("right")} className='cursor-pointer'><ChevronRight className='  md:h-10 md:w-10' /></button>
+            </div>
+          </div>
+        <div  ref={scrollRefTee} className='flex overflow-x-auto no-scrollbar gap-4 p-4'>
+        {
+          tshirts && tshirts.length > 0 &&  (
+            tshirts!.map((tshirt: Product) => (
+              <Link
+                key={tshirt.id}
+                href={`/product/${tshirt.slug}`}
+                className="flex  flex-col items-start justify-start gap-4 text-white hover:text-black rounded-3xl p-4 hover:bg-gray-50 transition duration-300"
+              >
+               {tshirt.images && tshirt.images.length > 0 && (
+  <div className="md:w-[220px] md:h-[180px] w-[140px] h-[100px] rounded-2xl overflow-hidden relative">
+    <Image
+      src={tshirt.images[0].url}
+      alt={tshirt.name}
+      fill
+      className="object-cover"
+    />
+  </div>
+)}
+
+              
+               <div className='flex flex-col items-start justify-start gap-1 md:gap-0 '>
+               <h2 className="md:text-lg text-xs flex   font-semibold">{tshirt.name}</h2>
+                <p className="md:text-lg text-xs  opacity-45 line-through ">₹{tshirt.price*2}</p>
+                <p className='md:text-lg text-xs font-semibold  '>₹{tshirt.price}</p>
+               </div>
+              </Link>
+            ))
+            
+          )
+            
+          }
+        </div>
+        </div>
+
+        {/* hoodies */}
+        <div>
+          <div className='bg-white md:p-4 p-2 md:px-7 shadow-md flex items-center justify-between text-black'> 
+            <h1 className='tracking-wider md:text-2xl font-semibold' >Hoodies</h1>
+            <div className='flex items-center justify-center gap-1 md:gap-3'>
+            <button onClick={() => scrollHoodies("left")} className='cursor-pointer'> <ChevronLeft className='  md:h-10 md:w-10' /> </button>
+            <button onClick={() => scrollHoodies("right")} className='cursor-pointer'><ChevronRight className='  md:h-10 md:w-10' /></button>
+            </div>
+          </div>
+        <div  ref={scrollRefHoodie} className='flex overflow-x-auto no-scrollbar gap-4 p-4'>
+        {
+          hoodies && hoodies.length > 0 &&  (
+            hoodies!.map((hoodie: Product) => (
+              <Link
+                key={hoodie.id}
+                href={`/product/${hoodie.slug}`}
+                className="flex  flex-col items-start justify-start gap-4 rounded-3xl p-4 hover:bg-gray-50 text-white hover:text-black transition duration-300"
+              >
+               {hoodie.images && hoodie.images.length > 0 && (
+  <div className="md:w-[220px] md:h-[180px] w-[140px] h-[100px] rounded-2xl overflow-hidden relative">
+    <Image
+      src={hoodie.images[0].url}
+      alt={hoodie.name}
+      fill
+      className="object-cover"
+    />
+  </div>
+)}
+
+              
+               <div className='flex flex-col items-start justify-start gap-1 md:gap-0 '>
+               <h2 className="md:text-lg text-xs flex   font-semibold">{hoodie.name}</h2>
+                <p className="md:text-lg text-xs opacity-45 line-through ">₹{hoodie.price*2}</p>
+                <p className='md:text-lg text-xs font-semibold  '>₹{hoodie.price}</p>
+               </div>
+              </Link>
+            ))
+            
+          )
+            
+          }
+        </div>
+        </div>
       </div>
       <div className="min-h-screen bg-cover bg-center bg-[url('/home-about.png')] grid grid-rows-2 text-center p-10 gap-10">
         <h1 className="md:text-7xl text-5xl font-bold mx-auto my-auto">About सबर</h1>
@@ -34,3 +177,4 @@ export default function Home() {
     </div>
   );
 }
+
