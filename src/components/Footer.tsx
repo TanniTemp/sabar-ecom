@@ -29,10 +29,10 @@ function Footer() {
                 <div className='grid grid-cols-2'>
                     {/* navigation */}
                     <div className='flex flex-col gap-1 '>
-                        <Link href={""} className=' '>Shop</Link>
-                        <Link href={""} className=' '>Home</Link>
-                        <Link href={""} className=' '>About</Link>
-                        <Link href={""} className=' '>Contact</Link>
+                        <Link href={"/"} className=' '>Home</Link>
+                        <Link href={"/category/tshirt"} className=' '>Shop</Link>
+                        <Link href={"/about"} className=' '>About</Link>
+                        <Link href={"/contact"} className=' '>Contact</Link>
                     </div>
 
                     {/* policies */}

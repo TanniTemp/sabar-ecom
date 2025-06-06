@@ -11,6 +11,7 @@ export default function Home() {
   const scrollRefHoodie = useRef<HTMLDivElement>(null);
   const [tshirts, setTshirts] = useState<Product[]>([]);
   const [hoodies, setHoodies] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
   const scrollTee = (direction: "left" | "right") => {
     if (scrollRefTee.current) {
       scrollRefTee.current.scrollBy({
@@ -29,6 +30,7 @@ export default function Home() {
   };
 
   useEffect(() => {
+    setLoading(true);
     const fetchProducts = async () => {
       const { data: tshirtData } = await supabase
         .from("product")
@@ -46,6 +48,7 @@ export default function Home() {
 
       setTshirts(tshirtData || []);
       setHoodies(hoodieData || []);
+      setLoading(false);
     };
 
     fetchProducts();
@@ -96,6 +99,11 @@ export default function Home() {
               </button>
             </div>
           </div>
+          {loading ? (
+        <div className="w-full h-60 flex items-center justify-center">
+          <span className="animate-spin rounded-full border-4 border-t-transparent border-white w-10 h-10"></span>
+        </div>
+      ) :(
           <div
             ref={scrollRefTee}
             className="flex overflow-x-auto no-scrollbar gap-4 p-4"
@@ -133,7 +141,9 @@ export default function Home() {
                 </Link>
               ))}
           </div>
+      )}
         </div>
+        
 
         {/* hoodies */}
         <div>
@@ -157,6 +167,11 @@ export default function Home() {
               </button>
             </div>
           </div>
+          {loading ? (
+        <div className="w-full h-60 flex items-center justify-center">
+          <span className="animate-spin rounded-full border-4 border-t-transparent border-white w-10 h-10"></span>
+        </div>
+      ) :(
           <div
             ref={scrollRefHoodie}
             className="flex overflow-x-auto no-scrollbar gap-4 p-4"
@@ -194,6 +209,7 @@ export default function Home() {
                 </Link>
               ))}
           </div>
+      )}
         </div>
       </div>
       <div className="min-h-screen bg-cover bg-center bg-[url('/home-about.png')] grid grid-rows-2 text-center p-10 gap-10">
