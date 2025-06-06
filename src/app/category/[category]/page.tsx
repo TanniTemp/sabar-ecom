@@ -7,35 +7,54 @@ import { useParams } from 'next/navigation';
 import { BreadcrumbWithDropdown } from '@/components/BreadcrumbWithDropdown';
 import Link from 'next/link';
 import Image from 'next/image';
+import { DropdownMenuRadioGroupDemo } from '@/components/DropdownMenuRadioGroupDemo';
 
 export default function Page() {
   const { category } = useParams() as { category: string };
   const [data, setData] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true); // Loading state
+  const [filter, setFilter] = useState<string>('Popularity'); // Filter state
 
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
-      const { data: productData } = await supabase
+  
+      let query = supabase
         .from("product")
         .select("*")
-        .eq("category", category)
-        .order("ordered_count", { ascending: false })
-        .limit(10);
-
+        .eq("category", category);
+  
+      if (filter === "Popularity") {
+        query = query.order("ordered_count", { ascending: false });
+      } else if (filter === "Price: Low to High") {
+        query = query.order("price", { ascending: true });
+      } else if (filter === "Price: High to Low") {
+        query = query.order("price", { ascending: false });
+      } else if (filter === "Newest") {
+        query = query.order("created_at", { ascending: false });
+      }
+  
+      const { data: productData } = await query.limit(20);
       setData(productData || []);
       setLoading(false);
     };
-
+  
     if (category) fetchProducts();
-  }, [category]);
+  }, [category, filter]);
+
+  console.log(filter)
 
   return (
     <div className="w-full pt-[100px] no-scrollbar min-h-screen overflow-x-hidden relative p-10">
       <BreadcrumbWithDropdown category={category} />
-      <h1 className="md:text-3xl text-xl mt-3 font-bold mb-6">
+    <div className='flex justify-between items-center'>
+    <h1 className="md:text-3xl text-xl mt-3 font-bold mb-6">
         {category.charAt(0).toUpperCase() + category.slice(1)}s
       </h1>
+      <div>
+       <DropdownMenuRadioGroupDemo selectedFilter={filter} setSelectedFilter={setFilter} />
+      </div>
+    </div>
 
       {loading ? (
         <div className="w-full h-60 flex items-center justify-center">
