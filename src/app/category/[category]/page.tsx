@@ -42,7 +42,7 @@ export default function Page() {
     if (category) fetchProducts();
   }, [category, filter]);
 
-  console.log(filter)
+
 
   return (
     <div className="w-full pt-[100px] no-scrollbar min-h-screen overflow-x-hidden relative p-10">

@@ -4,7 +4,7 @@ import Map from '@/components/Map';
 import Link from 'next/link'
 import React from 'react'
 
-function Page() {
+export default function Page() {
     const [firstName, setFirstName] = React.useState('');
     const [lastName, setLastName] = React.useState('');
     const [phone, setPhone] = React.useState('');
@@ -93,4 +93,3 @@ function Page() {
   )
 }
 
-export default Page
