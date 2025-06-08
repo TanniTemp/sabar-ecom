@@ -56,7 +56,7 @@ function Footer() {
         <div className='h-1 w-full bg-white' />
 
         <div>
-            <p className='text-sm flex items-center justify-center gap-2 tracking-wide mx-auto opacity-65'>
+            <p className='text-sm flex items-center justify-center gap-2 tracking-wide mx-auto text-gray-400'>
                 All Rights reserved <Copyright className='h-4 w-4 ' /> 2025 <span className='font-semibold'>Sabar</span>
             </p>
         </div>
