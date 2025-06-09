@@ -13,6 +13,7 @@ import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 import { motion } from "framer-motion";
+import Categories from "@/types/Categories";
 
 function Nav() {
   const [nav, setnav] = React.useState(false);
@@ -40,20 +41,18 @@ function Nav() {
             </Link>
             <div className="cursor-pointer group    relative select-none flex gap-1 items-bottom justify-bottom ">
               Shop <ChevronDown />
-              <div className="absolute top-[100%] hidden w-50 group-hover:block z-10 left-0 bg-gray-300 text-black p-4 rounded shadow-lg">
+              <div className="absolute top-[100%] py-6 hidden w-50 group-hover:block z-10 left-0 border-x-1 border-b-1 border-white bg-black text-white px-4 pt-4 rounded shadow-lg transition-all duration-900 ease-in-out ">
+               
+              {Object.entries(Categories).map(([key, label]) => (
                 <Link
-                  href={"category/tshirt"}
-                  className="block mb-2 border-b-2 border-gray-300"
+                  key={key}
+                  href={`/category/${key}`}
+                className="block  border-b-2 mb-2 border-gray-300"
                 >
-                  Tshirt
+                  {label}
                 </Link>
-
-                <Link
-                  href={"/category/hoodie"}
-                  className="block  border-b-2 border-gray-300"
-                >
-                  Hoodies
-                </Link>
+              ))}
+              
               </div>
             </div>
             <Link href={""} className="cursor-pointer">
@@ -98,22 +97,21 @@ function Nav() {
           </Link>
           <div className="mb-4 flex flex-col items-start justify-start gap-3">
             <div>
-              Shop <ChevronDown className="inline" />
+              Shop 
             </div>
-          <div className="flex flex-col items-start text-xl justify-start gap-2 p-2 rounded-xl text-black bg-white w-[50vw]"> 
-          <Link onClick={() => setnav(false)}
-              href={"/category/tshirt"}
-              className="block w-full mb-2 border-b-2 border-gray-400"
-            >
-              Tshirt
-            </Link>
-            <Link onClick={() => setnav(false)}
-              href={"/category/hoodie"}
-              className="block w-full  border-b-2 border-gray-400"
-            >
-              Hoodies
-            </Link>
-          </div>
+          <ul  className="flex flex-col items-start text-xl justify-start gap-2 p-2 px-6 rounded-xl list-disc  w-[50vw]"> 
+      
+              {
+                Object.entries(Categories).map(([key, label]) => (
+                  <li key={key} className="cursor-pointer hover:text-gray-400">
+                    <Link onClick={() => setnav(false)} href={`/category/${key}`}>
+                      {label}
+                    </Link>
+                  </li>
+                ))
+              }
+      
+          </ul>
           </div>
           <Link onClick={() => setnav(false)} href={""} className="cursor-pointer mb-4">
             About
