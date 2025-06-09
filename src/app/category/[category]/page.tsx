@@ -61,7 +61,7 @@ export default function Page() {
           <span className="animate-spin rounded-full border-4 border-t-transparent border-white w-10 h-10"></span>
         </div>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
           {data.map((product) => (
             <Link
               key={product.id}

@@ -15,6 +15,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import Categories from "@/types/Categories"
 
 export function BreadcrumbWithDropdown({category}:{category: string}) {
   return (
@@ -35,9 +36,15 @@ export function BreadcrumbWithDropdown({category}:{category: string}) {
               <ChevronDownIcon />
             </DropdownMenuTrigger>
             <DropdownMenuContent  className="bg-white text-black w-[150px]">
-              <DropdownMenuItem asChild ><Link href={"/category/tshirt"}>Tshirt</Link></DropdownMenuItem>
-              <DropdownMenuItem asChild><Link href={"/category/hoodie"}>Hoodie</Link></DropdownMenuItem>
-             
+           {
+            Object.entries(Categories).map(([key, label]) => (
+              <DropdownMenuItem asChild key={key} className="cursor-pointer">
+                <Link href={`/category/${key}`} className="w-full">
+                  {label}
+                </Link>
+              </DropdownMenuItem>
+            ))
+           }
             </DropdownMenuContent>
           </DropdownMenu>
         </BreadcrumbItem>
