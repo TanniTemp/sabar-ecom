@@ -15,14 +15,24 @@ import React from "react";
 import { motion } from "framer-motion";
 import Categories from "@/types/Categories";
 
+import { supabase } from "@/lib/client";
+
+
 function Nav() {
   const [nav, setnav] = React.useState(false);
 
+
+  const handleLogout = async () => {
+ 
+    await supabase.auth.signOut()
+    window.location.href = '/'
+
+  }
   return (
     <div>
       <div className="w-full  z-[9999] absolute top-0 over  text-white bg-black flex items-center justify-between md:px-6 md:py-2 py-1 ">
         {/* logo */}
-        <div className=" ">
+        <div className=" flex">
           <Link href={"/"}>
             <Image
               src={"/Group1.png"}
@@ -32,6 +42,9 @@ function Nav() {
               className="md:w-[150px] md:h-[55px]"
             />
           </Link>
+          <button onClick={handleLogout} className="px-4 py-2 bg-red-600 text-white rounded">
+      Logout
+    </button>
         </div>
         {/* menu */}
         <div className=" flex items-center gap-6  font-semibold ">
