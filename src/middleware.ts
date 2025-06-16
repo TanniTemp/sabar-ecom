@@ -10,6 +10,7 @@ export const config = {
     // only protect these paths
     '/dashboard/:path*',
     '/auth/private/:path*',
-    '/profile/:path*',
+    '/user/:path*',
+    '/checkout/:path*',
   ],
 }

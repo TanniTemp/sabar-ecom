@@ -2,13 +2,14 @@
 import Gallery from "@/components/Gallery";
 import { supabase } from "@/lib/supabaseClient";
 import { Product } from "@/types/product";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import Rating from "@mui/material/Rating";
 import Stack from "@mui/material/Stack";
 import { MapPin, Minus, Plus, Ruler, Truck, Zap } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { useAuth } from "@/components/AuthProvder";
 
 export default function Page() {
   const params = useParams();
@@ -19,8 +20,9 @@ export default function Page() {
   const [selectQuantity, setSelectedQuantity] = useState<number>(1);
   const [similarProducts, setSimilarProducts] = useState<Product[]>([]);
   const slug = params.product;
+  const router = useRouter();
   const [products, setProducts] = React.useState<Product>({} as Product);
-
+const {user} = useAuth();
   const [loading, setLoading] = React.useState(true);
   const Shipping = [
     "Orders will be delivered within 5 to 7 business days.",
@@ -66,6 +68,23 @@ export default function Page() {
     fetchProducts();
   }, [slug]);
 
+    
+      const handleClick = () => {
+        if(!selectedSize){
+          alert("select size");
+          return
+        }
+        const params = new URLSearchParams({
+          size: selectedSize!,
+          slug: products.slug,
+          quantity: selectQuantity.toLocaleString(),
+          color: selectedColor,
+          mode:"buyNow"
+        })
+    
+        router.push(`/checkout?${params.toString()}`)
+      }
+ 
 
   if (loading) {
     return (
@@ -269,9 +288,17 @@ export default function Page() {
           </div>
 
           <div className="grid grid-cols-2 md:gap-5  fixed md:relative bottom-0 left-0 right-0">
-            <button className="bg-white text-black  uppercase md:rounded-2xl py-3 font-bold tracking-wider text-xl">
+           {
+            user?
+               <button onClick={()=> handleClick()} className="bg-white text-black  uppercase md:rounded-2xl py-3 font-bold tracking-wider text-xl">
               Buy Now
-            </button>
+            </button>:(
+               <button  onClick={()=>router.push("/login")} className="bg-white text-black  uppercase md:rounded-2xl py-3 font-bold tracking-wider text-xl">
+               Buy Now
+             </button>
+            )
+           
+           }
             <button className="bg-[#f6c330]  uppercase md:rounded-2xl py-3 font-extrabold tracking-wide text-xl">
               ADD to Bag
             </button>

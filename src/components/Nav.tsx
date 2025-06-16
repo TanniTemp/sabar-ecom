@@ -16,16 +16,20 @@ import { motion } from "framer-motion";
 import Categories from "@/types/Categories";
 
 import { supabase } from "@/lib/client";
+import { useAuth } from "./AuthProvder";
+import { Button } from "./ui/button";
+import { useRouter } from "next/navigation";
 
 
 function Nav() {
   const [nav, setnav] = React.useState(false);
+  const router = useRouter()
 
-
+const {user} = useAuth();
   const handleLogout = async () => {
  
     await supabase.auth.signOut()
-    window.location.href = '/'
+router.push( '/');
 
   }
   return (
@@ -42,9 +46,13 @@ function Nav() {
               className="md:w-[150px] md:h-[55px]"
             />
           </Link>
-          <button onClick={handleLogout} className="px-4 py-2 bg-red-600 text-white rounded">
-      Logout
-    </button>
+        {
+          user&&
+            <button onClick={handleLogout} className="px-4 py-2 bg-red-600 text-white rounded">
+            Logout
+          </button>
+          
+        }
         </div>
         {/* menu */}
         <div className=" flex items-center gap-6  font-semibold ">
@@ -80,9 +88,15 @@ function Nav() {
             <Link href={"/"} className="">
               <ShoppingBag className="md:h-6 md:w-6 h-6 w-6" />
             </Link>
-            <Link href={"/"} className=" md:flex hidden ">
+           {
+            user? <div>
+               <Link href={"/user"} className=" md:flex hidden ">
               <User className="h-5 w-5 md:h-6 md:w-6" />
             </Link>
+            </div>
+            :
+            <Button onClick={()=>router.push("/login")} variant={"secondary"} className="bg-[#f0c400] text-lg font-semibold rounded-2xl cursor-pointer px-6 ">Login</Button>
+           }
             <button
               onClick={() => setnav(!nav)}
               className="cursor-pointer flex md:hidden"
@@ -134,7 +148,9 @@ function Nav() {
           </Link>
          </div>
          <div className="w-full h-[3px] bg-white my-3"/>
-         <div onClick={() => setnav(false)} className="flex items-center gap-4 ">Profile
+         <div onClick={() => {setnav(false)
+          router.push("/user")
+         }} className="flex items-center gap-4 ">Profile
           <User className="h-5 w-5 rounded-full bg-gray-400 p-[2px]" /> 
          </div>
          <div className="flex flex-col w-full items-end pt-4">  

@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
+import { AuthProvider } from "@/components/AuthProvder";
 
 const geistSans = Inter({
   variable: "--font-geist-sans",
@@ -26,9 +27,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable}  antialiased`}
       >
+        <AuthProvider>
         <Nav/>
         {children}
         <Footer/>
+        </AuthProvider>
       </body>
     </html>
   );
