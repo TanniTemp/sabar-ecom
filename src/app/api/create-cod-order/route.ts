@@ -12,21 +12,22 @@ export async function POST(req: NextRequest) {
       user_id,
       address,
       products,
-      taxes,
-      shippingCost,
+  
       currency = "INR",
     } = body;
+   
 
     if (!user_id || !address || !products || !Array.isArray(products)) {
       return NextResponse.json({ error: "Missing or invalid fields" }, { status: 400 });
     }
 
     const subtotal = products.reduce(
-      (acc: number, item: any) => acc + item.price * item.quantity,
+      (acc: number, item: { price: number; quantity: number }) => acc + item.price * item.quantity,
       0
     );
+    const taxes= Math.round(subtotal*0.18);
 
-    const totalAmount = subtotal + taxes + shippingCost;
+    const totalAmount = subtotal + taxes + 100;
 
     const { data, error } = await supabase.from("orders").insert([
       {
@@ -38,7 +39,7 @@ export async function POST(req: NextRequest) {
         payment_method: "COD",
         payment_status: "PENDING",
         order_status: "PLACED",
-        payment_id: "", // Empty for COD
+        payment_id: "", 
       },
     ]).select();
 

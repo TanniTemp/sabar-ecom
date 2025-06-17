@@ -1,6 +1,6 @@
 "use client";
 import { supabase } from '@/lib/supabaseClient';
-import { Product } from '@/types/product';
+
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 
@@ -8,6 +8,7 @@ import { BreadcrumbWithDropdown } from '@/components/BreadcrumbWithDropdown';
 import Link from 'next/link';
 import Image from 'next/image';
 import { DropdownMenuRadioGroupDemo } from '@/components/DropdownMenuRadioGroupDemo';
+import { Product } from '@/types/product';
 
 export default function Page() {
   const { category } = useParams() as { category: string };

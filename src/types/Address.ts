@@ -1,4 +1,4 @@
-interface Address{
+export interface Address{
     id:string,
     user_id:string,
     full_name:string,

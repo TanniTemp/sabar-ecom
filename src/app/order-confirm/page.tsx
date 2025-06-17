@@ -1,5 +1,6 @@
 "use client"
 
+
 import React, { useEffect, useState } from 'react'
 
 function ThankyouPage() {
@@ -9,6 +10,8 @@ function ThankyouPage() {
         setSearchParams(params);
       }, []);
     const order_id = searchParams?.get("orderId") || "";
+
+  
 
 return (
     <div className='w-[100vw] min-h-screen flex items-center justify-center'>

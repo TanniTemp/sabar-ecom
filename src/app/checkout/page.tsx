@@ -2,12 +2,14 @@
 
 import { useAuth } from "@/components/AuthProvder";
 import { supabase } from "@/lib/supabaseClient";
-import { Product } from "@/types/product";
+
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 import React, { useEffect, useState } from "react";
+import { Product } from "@/types/product"; // Adjust the import path based on your project structure
+
 interface checkoutItems extends Product {
   quantity: number;
   size: string;
@@ -30,17 +32,17 @@ function CheckoutPage() {
 
   const [paymentMethod, setPaymentMethod] = useState<string>("razorpay");
 
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [street, setStreet] = useState("");
+  const [name, setName] = useState("tanishk");
+  const [email, setEmail] = useState("er.tanishkdhaka@gmail.com");
+  const [phone, setPhone] = useState("9315484690");
+  const [street, setStreet] = useState("d-58");
   const [landmark, setLandmark] = useState("");
-  const [city, setCity] = useState("");
-  const [state, setState] = useState("");
-  const [zip, setZip] = useState("");
+  const [city, setCity] = useState("gzb");
+  const [state, setState] = useState("uttar");
+  const [zip, setZip] = useState("201102");
   const {user} = useAuth();
   const router = useRouter();
-  const userId = user?.id
+ const userID  = user?.id
 
   useEffect(() => {
     const fetchproduct = async () => {
@@ -136,7 +138,7 @@ function CheckoutPage() {
       return;
     }
 
-    const total = subtotal + taxes + shippingCost;
+    
   
     const response = await fetch("/api/razorpay-order", {
       method: "POST",
@@ -145,40 +147,57 @@ function CheckoutPage() {
       },
       body: JSON.stringify({
         customer: {
-          user_id: user?.id, 
+          
           name,
           email,
           phone,
           address: { street, landmark, city, state, zip },
         },
+        user_id:user?.id, 
         products,
-        subtotal,
-        taxes,
-        shippingCost,
-        total,
         paymentMethod,
       }),
     });
-  
+  console.log(response)
     const data = await response.json();
-  
+    const{order, amount}= data
+  console.log(data)
     if (paymentMethod === "razorpay") {
       const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "",
         amount: data.amount,
         currency: "INR",
         name: "Sabar",
         description: "Order Payment",
         order_id: data.order.id,
         prefill: { name, email, contact: phone },
-        handler: function (response: any) {
+        handler: async function (response: { razorpay_payment_id: string; razorpay_order_id: string; razorpay_signature: string }) {
+         
+          const { data, error } = await supabase.from("orders").insert([
+            {
+              user_id:userID,
+              address: { street, landmark, city, state, zip },
+              items: products,
+              total_amount:amount/100 ,
+              currency:"INR",
+              payment_method: "Razorpay",
+              payment_status: "PENDING",
+              order_status: "PLACED",
+              payment_id: order.id, 
+            },
+          ]).select();
+          if(error){
+            console.log(error)
+          }
+          console.log(data)
           console.log("Payment successful:", response);
-          router.push(`/order-confirm?orderId=${data.orderId}`);
+          
+          router.push(`/order-confirm?orderId=${data?.[0]?.id}`);
         },
         
       };
   
-      const razorpay = new (window as any).Razorpay(options);
+      const razorpay = new window.Razorpay(options);
       razorpay.open();
     } else if (paymentMethod === "cod") {
       const codResponse = await fetch("/api/create-cod-order", {
@@ -199,8 +218,7 @@ function CheckoutPage() {
             zip:zip,
           },
           products,
-          taxes,
-          shippingCost,
+          
         }),
       });
     
