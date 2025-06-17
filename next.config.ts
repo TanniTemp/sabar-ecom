@@ -5,6 +5,7 @@ const nextConfig: NextConfig = {
   images: {
     domains: ['uajtukglqwnwikiuvwwc.supabase.co'],
   },
+  
 };
 
 export default nextConfig;

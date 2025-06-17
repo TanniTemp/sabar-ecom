@@ -84,7 +84,13 @@ const {user} = useAuth();
     
         router.push(`/checkout?${params.toString()}`)
       }
- 
+  const handleCart=()=>{
+      if(!selectedSize){
+        alert("select size");
+        return
+      }
+      
+    }
 
   if (loading) {
     return (
@@ -299,7 +305,7 @@ const {user} = useAuth();
             )
            
            }
-            <button className="bg-[#f6c330]  uppercase md:rounded-2xl py-3 font-extrabold tracking-wide text-xl">
+            <button onClick={()=>handleCart()} className="bg-[#f6c330]  uppercase md:rounded-2xl py-3 font-extrabold tracking-wide text-xl">
               ADD to Bag
             </button>
           </div>

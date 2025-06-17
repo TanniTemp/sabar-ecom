@@ -1,9 +1,11 @@
 "use client";
 
+import { useAuth } from "@/components/AuthProvder";
 import { supabase } from "@/lib/supabaseClient";
 import { Product } from "@/types/product";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 import React, { useEffect, useState } from "react";
 interface checkoutItems extends Product {
@@ -26,9 +28,7 @@ function CheckoutPage() {
   const mode = searchParams?.get("mode") || "";
   const [products, setProducts] = useState<checkoutItems[]>([]);
 
-
   const [paymentMethod, setPaymentMethod] = useState<string>("razorpay");
-
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -38,6 +38,9 @@ function CheckoutPage() {
   const [city, setCity] = useState("");
   const [state, setState] = useState("");
   const [zip, setZip] = useState("");
+  const {user} = useAuth();
+  const router = useRouter();
+  const userId = user?.id
 
   useEffect(() => {
     const fetchproduct = async () => {
@@ -73,28 +76,149 @@ function CheckoutPage() {
           .select("*")
           .in("slug", slugs);
         if (!data) return;
-        const enriched = cart.map((cartItem: { slug: string; size: string; color: string; quantity: number }) => {
-          const product = data.find((p) => p.slug === cartItem.slug);
-          return {
-            ...product,
-            size: cartItem.size,
-            color: cartItem.color,
-            quantity: cartItem.quantity,
-          };
-        });
+        const enriched = cart.map(
+          (cartItem: {
+            slug: string;
+            size: string;
+            color: string;
+            quantity: number;
+          }) => {
+            const product = data.find((p) => p.slug === cartItem.slug);
+            return {
+              ...product,
+              size: cartItem.size,
+              color: cartItem.color,
+              quantity: cartItem.quantity,
+            };
+          }
+        );
         setProducts(enriched);
       }
     };
     fetchproduct();
-  }, [slug,size,quantity,color,mode]);
+  }, [slug, size, quantity, color, mode]);
 
   const subtotal = products.reduce((acc, item) => {
     return acc + (item.price || 0) * (item.quantity || 1);
   }, 0);
+  function isFormValid() {
+    return (
+      name.trim() &&
+      email.trim() &&
+      phone.trim().length === 10 &&
+      street.trim() &&
+      city.trim() &&
+      state.trim() &&
+      zip.trim()
+    );
+  }
+  
   const shippingCost = paymentMethod === "razorpay" ? 0 : 100;
-  const taxes = Math.round((subtotal/100)*18)
+  const taxes = Math.round((subtotal / 100) * 18);
+  async function loadRazorpayScript() {
 
-console.log(name,phone,email,street,landmark,zip,state,city)
+    return new Promise((resolve) => {
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  }
+  const handlePlaceOrder = async () => {
+    if (!isFormValid()) {
+      alert("Please fill in all required fields correctly.");
+      return;
+    }
+    const res = await loadRazorpayScript();
+    if (!res) {
+      alert("Failed to load Razorpay SDK");
+      return;
+    }
+
+    const total = subtotal + taxes + shippingCost;
+  
+    const response = await fetch("/api/razorpay-order", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        customer: {
+          user_id: user?.id, 
+          name,
+          email,
+          phone,
+          address: { street, landmark, city, state, zip },
+        },
+        products,
+        subtotal,
+        taxes,
+        shippingCost,
+        total,
+        paymentMethod,
+      }),
+    });
+  
+    const data = await response.json();
+  
+    if (paymentMethod === "razorpay") {
+      const options = {
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        amount: data.amount,
+        currency: "INR",
+        name: "Sabar",
+        description: "Order Payment",
+        order_id: data.order.id,
+        prefill: { name, email, contact: phone },
+        handler: function (response: any) {
+          console.log("Payment successful:", response);
+          router.push(`/order-confirm?orderId=${data.orderId}`);
+        },
+        
+      };
+  
+      const razorpay = new (window as any).Razorpay(options);
+      razorpay.open();
+    } else if (paymentMethod === "cod") {
+      const codResponse = await fetch("/api/create-cod-order", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          user_id: user?.id , // fetch user ID from Supabase auth
+          address: {
+            full_name: name,
+            email:email,
+            phone:phone,
+            street:street,
+            landmark:landmark,
+            city:city,
+            state:state,
+            zip:zip,
+          },
+          products,
+          taxes,
+          shippingCost,
+        }),
+      });
+    
+      const codData = await codResponse.json();
+     console.log(codData)
+      if (codResponse.ok) {
+        console.log("COD order placed:", codData.order);
+        router.push(`order-confirm?orderId=${codData.order.id}`)
+        // redirect to thank-you page or show confirmation
+      } else {
+        console.error("COD order failed:", codData.error);
+        alert("Something went wrong while placing your COD order.");
+      }
+    }
+    
+  };
+  
+  
   return (
     <div className="flex md:flex-row flex-col md:p-10 gap-5 pt-[60px] w-full min-h-screen">
       <div className="flex flex-col  md:min-w-[60%]  p-10">
@@ -327,32 +451,30 @@ console.log(name,phone,email,street,landmark,zip,state,city)
 
           {/* total price */}
           <div className="flex flex-col gap-1">
-            
             <div className="grid grid-cols-2 text-xl md:text-2xl">
-           <div >Subtotal</div>
-           <div className="flex items-end justify-end">₹{subtotal}</div>
+              <div>Subtotal</div>
+              <div className="flex items-end justify-end">₹{subtotal}</div>
             </div>
             <div className="grid grid-cols-2 text-sm md:text-lg">
-           <div >Shipping</div>
-           <div className="flex items-end justify-end">₹{
-             shippingCost
-            }</div>
+              <div>Shipping</div>
+              <div className="flex items-end justify-end">₹{shippingCost}</div>
             </div>
             <div className="grid grid-cols-2 text-sm md:text-lg ">
-           <div >Estimated Taxes</div>
-           <div className="flex items-end justify-end">₹{taxes}</div>
+              <div>Estimated Taxes</div>
+              <div className="flex items-end justify-end">₹{taxes}</div>
             </div>
-
           </div>
           <div className="h-2 w-full bg-white my-6" />
           <div className="grid grid-cols-2 text-xl md:text-2xl">
-           <div >Total</div>
-           <div className="flex items-end justify-end">₹{subtotal+shippingCost+taxes}</div>
+            <div>Total</div>
+            <div className="flex items-end justify-end">
+              ₹{subtotal + shippingCost + taxes}
             </div>
+          </div>
 
-            <div className="w-full flex items-center justify-center bg-[#FFCF00] text-white py-3 rounded-2xl mt-3 text-2xl font-bold">
-              PAY NOW
-            </div>
+          <button onClick={()=>handlePlaceOrder()} className="w-full cursor-pointer  flex items-center justify-center bg-[#FFCF00] text-white py-3 rounded-2xl mt-3 text-2xl font-bold">
+            PAY NOW
+          </button>
         </div>
       </div>
     </div>
