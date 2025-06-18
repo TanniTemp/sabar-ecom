@@ -3,7 +3,6 @@
 import { useAuth } from "@/components/AuthProvder";
 import { supabase } from "@/lib/supabaseClient";
 
-
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
@@ -40,9 +39,9 @@ function CheckoutPage() {
   const [city, setCity] = useState("gzb");
   const [state, setState] = useState("uttar");
   const [zip, setZip] = useState("201102");
-  const {user} = useAuth();
+  const { user } = useAuth();
   const router = useRouter();
- const userID  = user?.id
+
 
   useEffect(() => {
     const fetchproduct = async () => {
@@ -114,11 +113,10 @@ function CheckoutPage() {
       zip.trim()
     );
   }
-  
+
   const shippingCost = paymentMethod === "razorpay" ? 0 : 100;
   const taxes = Math.round((subtotal / 100) * 18);
   async function loadRazorpayScript() {
-
     return new Promise((resolve) => {
       const script = document.createElement("script");
       script.src = "https://checkout.razorpay.com/v1/checkout.js";
@@ -138,8 +136,6 @@ function CheckoutPage() {
       return;
     }
 
-    
-  
     const response = await fetch("/api/razorpay-order", {
       method: "POST",
       headers: {
@@ -147,21 +143,21 @@ function CheckoutPage() {
       },
       body: JSON.stringify({
         customer: {
-          
           name,
           email,
           phone,
-          address: { street, landmark, city, state, zip },
+          address: { street:street, landmark:landmark, city:city, state:state, zip:zip },
         },
-        user_id:user?.id, 
+        address: { street:street, landmark:landmark, city:city, state:state, zip:zip },
+        user_id: user?.id,
         products,
         paymentMethod,
       }),
     });
-  console.log(response)
+    console.log(response);
     const data = await response.json();
-    const{order, amount}= data
-  console.log(data)
+
+    console.log(data);
     if (paymentMethod === "razorpay") {
       const options = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "",
@@ -171,33 +167,18 @@ function CheckoutPage() {
         description: "Order Payment",
         order_id: data.order.id,
         prefill: { name, email, contact: phone },
-        handler: async function (response: { razorpay_payment_id: string; razorpay_order_id: string; razorpay_signature: string }) {
-         
-          const { data, error } = await supabase.from("orders").insert([
-            {
-              user_id:userID,
-              address: { street, landmark, city, state, zip },
-              items: products,
-              total_amount:amount/100 ,
-              currency:"INR",
-              payment_method: "Razorpay",
-              payment_status: "PENDING",
-              order_status: "PLACED",
-              payment_id: "", 
-              order_id:order.id
-            },
-          ]).select();
-          if(error){
-            console.log(error)
-          }
-          console.log(data)
+        handler: async function (response: {
+          razorpay_payment_id: string;
+          razorpay_order_id: string;
+          razorpay_signature: string;
+        }) {
+          console.log(data);
           console.log("Payment successful:", response);
-          
-          router.push(`/order-confirm?orderId=${data?.[0]?.id}`);
+
+          router.push(`/order-confirm?orderId=${data.order.id}`);
         },
-        
       };
-  
+
       const razorpay = new window.Razorpay(options);
       razorpay.open();
     } else if (paymentMethod === "cod") {
@@ -207,37 +188,34 @@ function CheckoutPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          user_id: user?.id , // fetch user ID from Supabase auth
+          user_id: user?.id,
           address: {
             full_name: name,
-            email:email,
-            phone:phone,
-            street:street,
-            landmark:landmark,
-            city:city,
-            state:state,
-            zip:zip,
+            email: email,
+            phone: phone,
+            street: street,
+            landmark: landmark,
+            city: city,
+            state: state,
+            zip: zip,
           },
           products,
-          
         }),
       });
-    
+
       const codData = await codResponse.json();
-     console.log(codData)
+      console.log(codData);
       if (codResponse.ok) {
         console.log("COD order placed:", codData.order);
-        router.push(`order-confirm?orderId=${codData.order.id}`)
+        router.push(`order-confirm?orderId=${codData.order.id}`);
         // redirect to thank-you page or show confirmation
       } else {
         console.error("COD order failed:", codData.error);
         alert("Something went wrong while placing your COD order.");
       }
     }
-    
   };
-  
-  
+
   return (
     <div className="flex md:flex-row flex-col md:p-10 gap-5 pt-[60px] w-full min-h-screen">
       <div className="flex flex-col  md:min-w-[60%]  p-10">
@@ -491,7 +469,10 @@ function CheckoutPage() {
             </div>
           </div>
 
-          <button onClick={()=>handlePlaceOrder()} className="w-full cursor-pointer  flex items-center justify-center bg-[#FFCF00] text-white py-3 rounded-2xl mt-3 text-2xl font-bold">
+          <button
+            onClick={() => handlePlaceOrder()}
+            className="w-full cursor-pointer  flex items-center justify-center bg-[#FFCF00] text-white py-3 rounded-2xl mt-3 text-2xl font-bold"
+          >
             PAY NOW
           </button>
         </div>
