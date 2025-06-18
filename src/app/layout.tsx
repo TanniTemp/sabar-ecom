@@ -4,6 +4,7 @@ import "./globals.css";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import { AuthProvider } from "@/components/AuthProvder";
+import { Toaster } from "sonner";
 
 const geistSans = Inter({
   variable: "--font-geist-sans",
@@ -30,6 +31,7 @@ export default function RootLayout({
         <AuthProvider>
         <Nav/>
         {children}
+        <Toaster richColors position="top-center" /> 
         <Footer/>
         </AuthProvider>
       </body>

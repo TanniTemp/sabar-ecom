@@ -33,7 +33,16 @@ export async function POST(req: NextRequest) {
       {
         user_id,
         address,
-        items: products,
+        items:products.map((product: { name: string; price: number; quantity: number ,size:string,color:string,slug:string}) => ({
+          name: product.name,
+          price: product.price,
+          quantity: product.quantity,
+          size:product.size,
+          slug:product.slug,
+          color:product.color,
+          
+    
+        })),
         total_amount: totalAmount,
         currency,
         payment_method: "COD",

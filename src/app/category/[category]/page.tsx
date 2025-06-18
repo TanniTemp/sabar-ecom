@@ -46,7 +46,7 @@ export default function Page() {
 
 
   return (
-    <div className="w-full pt-[100px] no-scrollbar min-h-screen overflow-x-hidden relative p-10">
+    <div className="w-full pt-[100px] no-scrollbar min-h-screen overflow-x-hidden relative md:p-10 p-3">
       <BreadcrumbWithDropdown category={category} />
     <div className='flex justify-between items-center'>
     <h1 className="md:text-3xl text-xl mt-3 font-bold mb-6">

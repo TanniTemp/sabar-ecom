@@ -9,7 +9,8 @@ import Stack from "@mui/material/Stack";
 import { MapPin, Minus, Plus, Ruler, Truck, Zap } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { useAuth } from "@/components/AuthProvder";
+
+import { toast } from "sonner";
 
 export default function Page() {
   const params = useParams();
@@ -22,7 +23,8 @@ export default function Page() {
   const slug = params.product;
   const router = useRouter();
   const [products, setProducts] = React.useState<Product>({} as Product);
-const {user} = useAuth();
+  const [buyNowLoading,setBuyNowLoading] = useState(false)
+
   const [loading, setLoading] = React.useState(true);
   const Shipping = [
     "Orders will be delivered within 5 to 7 business days.",
@@ -69,9 +71,11 @@ const {user} = useAuth();
   }, [slug]);
 
     
-      const handleClick = () => {
+      const handleBuyNow = () => {
+        setBuyNowLoading(true)
         if(!selectedSize){
-          alert("select size");
+         toast.error("Please select a size before adding to cart.");
+          setBuyNowLoading(false)
           return
         }
         const params = new URLSearchParams({
@@ -81,7 +85,7 @@ const {user} = useAuth();
           color: selectedColor,
           mode:"buyNow"
         })
-    
+        setBuyNowLoading(false)
         router.push(`/checkout?${params.toString()}`)
       }
   const handleCart=()=>{
@@ -100,7 +104,7 @@ const {user} = useAuth();
     );
   }
   return (
-    <div className="w-full pt-[100px] no-scrollbar min-h-screen overflow-x-hidden relative p-10">
+    <div className="w-full pt-[100px] no-scrollbar min-h-screen overflow-x-hidden relative py-10 px-3 md:px-10 ">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10 max-w-screen-xl mx-auto">
         <div>
           <Gallery
@@ -250,7 +254,7 @@ const {user} = useAuth();
                             setSelectedSize(size);
                           }
                         }}
-                        className={`md:px-4 px-2 md:py-2 py-1 border-2 rounded-md text-sm
+                        className={`md:px-4 px-2 md:py-2 py-1 border-2 flex items-center justify-center h-10 w-10 rounded-2xl text-sm
                 ${
                   selectedSize === size
                     ? "border-blue-500 font-semibold"
@@ -277,40 +281,35 @@ const {user} = useAuth();
               <button
                 onClick={() => setSelectedQuantity(selectQuantity - 1)}
                 disabled={selectQuantity <= 1}
-                className="cursor-pointer  border-4 border-black bg-white   flex items-center justify-center"
+                className="cursor-pointer  bg-white h-12 w-12  rounded-2xl  flex items-center justify-center"
               >
                 <Minus color="black" />
               </button>
-              <div className="flex items-center col-span-4 justify-center">
+              <div className="flex items-center text-xl font-bold col-span-4 justify-center">
                 {selectQuantity}
               </div>
               <button
                 onClick={() => setSelectedQuantity(selectQuantity + 1)}
-                className="cursor-pointer bg-white border-white  border-2 flex items-center justify-center"
+                className="cursor-pointer bg-white h-12 w-12 rounded-2xl flex items-center justify-center"
               >
                 <Plus color="black" />
               </button>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 md:gap-5  fixed md:relative bottom-0 left-0 right-0">
-           {
-            user?
-               <button onClick={()=> handleClick()} className="bg-white text-black  uppercase md:rounded-2xl py-3 font-bold tracking-wider text-xl">
-              Buy Now
-            </button>:(
-               <button  onClick={()=>router.push("/login")} className="bg-white text-black  uppercase md:rounded-2xl py-3 font-bold tracking-wider text-xl">
-               Buy Now
-             </button>
-            )
+          <div className="grid grid-cols-2 md:gap-5 z-[1000] fixed md:relative bottom-0 left-0 right-0">
+          
+               <button onClick={()=> handleBuyNow()} className="bg-white text-black cursor-pointer  uppercase md:rounded-2xl py-3 font-bold tracking-wider text-xl">
+            {buyNowLoading?"Loading....":"Buy Now"}
+            </button>
            
-           }
-            <button onClick={()=>handleCart()} className="bg-[#f6c330]  uppercase md:rounded-2xl py-3 font-extrabold tracking-wide text-xl">
-              ADD to Bag
+           
+            <button onClick={()=>handleCart()} className="bg-[#f6c330] cursor-pointer  uppercase md:rounded-2xl py-3 font-extrabold tracking-wide text-xl">
+              Add to Bag
             </button>
           </div>
           {/* this bottom div is child i want to give negative margin */}
-          <div className="bg-white text-black rounded-3xl -ml-13 text-xs md:px-3 w-[100vw] md:w-full md:m-0 py-5 grid grid-cols-3">
+          <div className="bg-white text-black rounded-3xl -ml-6 text-xs md:px-3 w-[100vw] md:w-full md:m-0 py-5 grid grid-cols-3">
             <div className="flex flex-col items-center justify-center gap-2">
               <Truck color="#000000" className="" />
               <p>Cash on Delivery</p>

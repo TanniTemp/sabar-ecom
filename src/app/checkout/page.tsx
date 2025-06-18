@@ -148,7 +148,19 @@ function CheckoutPage() {
           phone,
           address: { street:street, landmark:landmark, city:city, state:state, zip:zip },
         },
-        address: { street:street, landmark:landmark, city:city, state:state, zip:zip },
+        name,
+        email,
+        phone,
+        address: {
+          full_name: name,
+          email: email,
+          phone: phone,
+          street: street,
+          landmark: landmark,
+          city: city,
+          state: state,
+          zip: zip,
+        },
         user_id: user?.id,
         products,
         paymentMethod,
@@ -469,12 +481,20 @@ function CheckoutPage() {
             </div>
           </div>
 
-          <button
+        {user?
+            <button
             onClick={() => handlePlaceOrder()}
             className="w-full cursor-pointer  flex items-center justify-center bg-[#FFCF00] text-white py-3 rounded-2xl mt-3 text-2xl font-bold"
           >
             PAY NOW
           </button>
+          :  <button
+          onClick={() =>router.push("/login")}
+          className="w-full cursor-pointer  flex items-center justify-center bg-[#FFCF00] text-white py-3 rounded-2xl mt-3 text-2xl font-bold"
+        >
+          PAY NOW
+        </button>
+        }
         </div>
       </div>
     </div>
