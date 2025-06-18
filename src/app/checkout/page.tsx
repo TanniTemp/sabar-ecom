@@ -183,7 +183,8 @@ function CheckoutPage() {
               payment_method: "Razorpay",
               payment_status: "PENDING",
               order_status: "PLACED",
-              payment_id: order.id, 
+              payment_id: "", 
+              order_id:order.id
             },
           ]).select();
           if(error){

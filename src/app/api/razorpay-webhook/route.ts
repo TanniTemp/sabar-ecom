@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
           order_status: "CONFIRMED",
           payment_id: paymentId,
         })
-        .eq("razorpay_order_id", orderId);
+        .eq("order_id", orderId);
 
       if (error) {
         console.error("Supabase update failed:", error);

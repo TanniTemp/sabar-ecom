@@ -14,6 +14,6 @@ export default interface Orders{
     order_status:string,
     payment_method:string,
     payment_id:string,
-
+    order_id:string
 
 }
