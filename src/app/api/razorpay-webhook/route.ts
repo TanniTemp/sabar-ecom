@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
           order_status: "CONFIRMED",
           payment_id: paymentId,
         })
-        .eq("order_id", "order_QiZPQL04Jww0Ez");
+        .eq("order_id", orderId);
 
       if (error) {
         console.error("Supabase update failed:", error);
