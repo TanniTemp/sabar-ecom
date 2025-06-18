@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
-import { supabase } from "@/lib/supabaseClient";
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY! )
 
 export async function POST(req: NextRequest) {
   try {
@@ -31,7 +35,7 @@ export async function POST(req: NextRequest) {
           order_status: "CONFIRMED",
           payment_id: paymentId,
         })
-        .eq("order_id", orderId);
+        .eq("order_id", "order_QiZPQL04Jww0Ez");
 
       if (error) {
         console.error("Supabase update failed:", error);
