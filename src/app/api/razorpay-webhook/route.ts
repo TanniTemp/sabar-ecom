@@ -26,6 +26,14 @@ export async function POST(req: NextRequest) {
     const payment = payload.payload.payment.entity;
     const paymentId = payment.id;
     const orderId = payment.order_id;
+    
+    console.log("Received order_id from Razorpay:", orderId); // 🔍 Debug log
+    
+    if (!orderId) {
+      console.error("❌ order_id is undefined or null in Razorpay payload", payload);
+      return new NextResponse("order_id missing", { status: 400 });
+    }
+    
 
     if (event === "payment.captured") {
       const { error } = await supabase
@@ -36,6 +44,7 @@ export async function POST(req: NextRequest) {
           payment_id: paymentId,
         })
         .eq("order_id", orderId);
+    
 
       if (error) {
         console.error("Supabase update failed:", error);
