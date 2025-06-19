@@ -12,6 +12,13 @@ import Image from "next/image";
 
 import { toast } from "sonner";
 
+
+type CartItem = {
+  slug: string;
+  size: string;
+  color: string;
+  quantity: number;
+};
 export default function Page() {
   const params = useParams();
   const [iconSize, setIconSize] = useState<"medium" | "large">("medium");
@@ -24,6 +31,7 @@ export default function Page() {
   const router = useRouter();
   const [products, setProducts] = React.useState<Product>({} as Product);
   const [buyNowLoading,setBuyNowLoading] = useState(false)
+ 
 
   const [loading, setLoading] = React.useState(true);
   const Shipping = [
@@ -88,13 +96,41 @@ export default function Page() {
         setBuyNowLoading(false)
         router.push(`/checkout?${params.toString()}`)
       }
-  const handleCart=()=>{
-      if(!selectedSize){
-        alert("select size");
-        return
-      }
+      const handleCart = () => {
+        if (!selectedSize) {
+        
+          toast.error("Please select a size before adding to cart.");
+          
+          return;
+        }
       
-    }
+        const existingCart: CartItem[] = JSON.parse(localStorage.getItem("Sabarcart") || "[]");
+      
+        const index = existingCart.findIndex(
+          item =>
+            item.slug === products.slug &&
+            item.size === selectedSize &&
+            item.color === selectedColor
+        );
+      
+        if (index !== -1) {
+          // Already exists: increase quantity
+          existingCart[index].quantity += selectQuantity;
+        } else {
+          // New item
+          existingCart.push({
+            slug: products.slug,
+            size: selectedSize,
+            color: selectedColor,
+            quantity: selectQuantity,
+          });
+        }
+      
+        localStorage.setItem("Sabarcart", JSON.stringify(existingCart));
+        toast.success("Item added to cart!");
+        console.log(existingCart)
+      };
+  
 
   if (loading) {
     return (

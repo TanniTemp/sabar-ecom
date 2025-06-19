@@ -2,38 +2,40 @@
 'use client'
 
 import { supabase } from '@/lib/client'
+import {  useSearchParams } from 'next/navigation'
 import { useState } from 'react'
 
 
 export default function LoginForm() {
- 
+  const searchParams = useSearchParams()
+
+
+
   const [email, setEmail] = useState('')
   const [message, setMessage] = useState('')
+  const redirectTo = searchParams.get('redirectTo') || '/'
 
   const handleMagicLink = async (e: React.FormEvent) => {
     e.preventDefault()
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: `${window.location.origin}`,
+        emailRedirectTo: `${window.location.origin}${redirectTo}`,
       },
     })
 
-    if (error) {
-      setMessage('Failed to send magic link.')
-    } else {
-      setMessage('Check your email for the magic link!')
-    }
+    setMessage(error ? 'Failed to send magic link.' : 'Check your email for the magic link!')
   }
 
   const handleGoogleLogin = async () => {
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}`,
+        redirectTo: `${window.location.origin}${redirectTo}`,
       },
     })
   }
+
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4">

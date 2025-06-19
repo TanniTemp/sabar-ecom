@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Categories from "@/types/Categories";
 
@@ -32,6 +32,15 @@ const {user} = useAuth();
 router.push( '/');
 
   }
+  const[cartItems,setCartItems]=useState([])
+  useEffect(() => {
+    const stored = localStorage.getItem("Sabarcart");
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      setCartItems(parsed);
+    }
+  }, []);
+  
   return (
     <div>
       <div className="w-full  z-[9999] absolute top-0 over  text-white bg-black flex items-center justify-between md:px-6 md:py-2 py-1 ">
@@ -85,8 +94,11 @@ router.push( '/');
           </div>
           {/* icons */}
           <div className="flex items-center gap-6 pr-3 md:pr-0">
-            <Link href={"/"} className="">
+            <Link href={"/cart"} className="relative ">
               <ShoppingBag className="md:h-6 md:w-6 h-6 w-6" />
+              <div className="absolute bottom-[60%] left-3 text-sm bg-white text-black h-4 w-4 flex items-center justify-center rounded-full">
+                {cartItems.length+1}
+              </div>
             </Link>
            {
             user? <div>

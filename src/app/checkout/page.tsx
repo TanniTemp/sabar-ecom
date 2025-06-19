@@ -7,8 +7,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 import React, { useEffect, useState } from "react";
-import { Product } from "@/types/product"; // Adjust the import path based on your project structure
-
+import { Product } from "@/types/product"; 
 interface checkoutItems extends Product {
   quantity: number;
   size: string;
@@ -16,17 +15,10 @@ interface checkoutItems extends Product {
 }
 
 function CheckoutPage() {
-  const [searchParams, setSearchParams] = useState<URLSearchParams>();
+  
+  const [color,setColor] = useState("")
+  const [size,setSize]= useState("")
 
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    setSearchParams(params);
-  }, []);
-  const slug = searchParams?.get("slug") || "";
-  const size = searchParams?.get("size") || "";
-  const quantity = searchParams?.get("quantity") || "";
-  const color = searchParams?.get("color") || "";
-  const mode = searchParams?.get("mode") || "";
   const [products, setProducts] = useState<checkoutItems[]>([]);
 
   const [paymentMethod, setPaymentMethod] = useState<string>("razorpay");
@@ -42,34 +34,35 @@ function CheckoutPage() {
   const { user } = useAuth();
   const router = useRouter();
 
-
   useEffect(() => {
     const fetchproduct = async () => {
-      // const { data } = await supabase
-      //   .from("addresses")
-      //   .select("*")
-      //   .eq("user_id", userId);
-      // setAddress(data || []);
-      //Address feature for some other day
-
+      const params = new URLSearchParams(window.location.search);
+      const slug = params.get("slug") || "";
+      const size = params.get("size") || "";
+      const quantity = Number(params.get("quantity") || "1");
+      const color = params.get("color") || "";
+      const mode = params.get("mode") || "";
+      setColor(color)
+      setSize(size)
+  
       if (mode === "buyNow" && slug) {
         const { data } = await supabase
           .from("product")
           .select("*")
           .eq("slug", slug);
-
+  
         if (data && data.length > 0) {
           setProducts([
             {
               ...data[0],
-              size: size || "",
-              color: color || "",
-              quantity: Number(quantity) || 1,
+              size,
+              color,
+              quantity,
             },
           ]);
         }
       } else if (mode === "cart") {
-        const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+        const cart = JSON.parse(localStorage.getItem("Sabarcart") || "[]");
         const slugs = cart.map((item: { slug: string }) => item.slug);
         if (slugs.length === 0) return;
         const { data } = await supabase
@@ -97,7 +90,8 @@ function CheckoutPage() {
       }
     };
     fetchproduct();
-  }, [slug, size, quantity, color, mode]);
+  }, []); 
+  
 
   const subtotal = products.reduce((acc, item) => {
     return acc + (item.price || 0) * (item.quantity || 1);
@@ -115,6 +109,7 @@ function CheckoutPage() {
   }
 
   const shippingCost = paymentMethod === "razorpay" ? 0 : 100;
+  const discount = paymentMethod === "razorpay" ? 100 : 0;
   const taxes = Math.round((subtotal / 100) * 18);
   async function loadRazorpayScript() {
     return new Promise((resolve) => {
@@ -436,7 +431,7 @@ function CheckoutPage() {
                     alt={item.images?.[0]?.alt || "Product Image"}
                     height={90}
                     width={90}
-                    className="rounded-2xl h-[60px] md:h-[90px] md:w-[90px] w-[60px]"
+                    className="rounded-2xl h-[60px] md:h-[70px] md:w-[80px] w-[70px]"
                   />
                   <div className="absolute bottom-[80%] right-0 bg-white text-black w-5 h-5 flex items-center justify-center text-sm rounded-full ">
                     {" "}
@@ -466,11 +461,15 @@ function CheckoutPage() {
             </div>
             <div className="grid grid-cols-2 text-sm md:text-lg">
               <div>Shipping</div>
-              <div className="flex items-end justify-end">₹{shippingCost}</div>
+              <div className="flex items-end justify-end">₹100</div>
             </div>
             <div className="grid grid-cols-2 text-sm md:text-lg ">
               <div>Estimated Taxes</div>
               <div className="flex items-end justify-end">₹{taxes}</div>
+            </div>
+            <div className="grid grid-cols-2 text-sm md:text-lg ">
+              <div>Discount</div>
+              <div className="flex items-end justify-end">-₹{discount}</div>
             </div>
           </div>
           <div className="h-2 w-full bg-white my-6" />
@@ -489,7 +488,10 @@ function CheckoutPage() {
             PAY NOW
           </button>
           :  <button
-          onClick={() =>router.push("/login")}
+          onClick={() => {
+            const currentUrl = window.location.pathname + window.location.search
+            router.push(`/login?redirectTo=${encodeURIComponent(currentUrl)}`)
+          }}
           className="w-full cursor-pointer  flex items-center justify-center bg-[#FFCF00] text-white py-3 rounded-2xl mt-3 text-2xl font-bold"
         >
           PAY NOW

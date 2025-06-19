@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
         total_amount: totalAmount,
         currency,
         payment_method: "COD",
-        payment_status: "PENDING",
+        payment_status: "COD",
         order_status: "PLACED",
         payment_id: "", 
       },
