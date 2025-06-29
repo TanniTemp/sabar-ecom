@@ -15,5 +15,6 @@ export default interface Orders{
     payment_method:string,
     payment_id:string,
     order_id:string
+    created_at:string,
 
 }

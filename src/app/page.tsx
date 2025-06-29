@@ -58,22 +58,32 @@ const scroll = (category: string, direction: "left" | "right") => {
 
   return (
     <div className="w-full min-h-screen overflow-x-hidden relative ">
-      <div className="min-h-screen  bg-cover bg-center   bg-[url('/hero.png')] grid grid-rows-2">
-        <div></div>
-        <div className="flex flex-col items-center  gap-10">
-          <div
-            className="md:text-8xl text-4xl font-semibold text-white px-14 py-4 md:border-10 border-5 rounded-full border-white"
-          >
-            Fresh Drops
-          </div>
-          <Link
-            href={"/category/tshirt"}
-            className="md:text-4xl text-2xl text-black font-semibold bg-[#ffffff] md:px-14 md:py-4 px-4 py-2 mt-4 border-10 rounded-full border-white"
-          >
-            SHOP NOW
-          </Link>
+     <div className="relative min-h-screen grid grid-rows-2 overflow-hidden">
+      {/* Background image */}
+      <Image
+        src="/hero.png" // convert your PNG to WebP
+        alt="Hero Background"
+        fill
+        className="object-cover"
+        priority // preload for better LCP
+        placeholder="blur"
+        blurDataURL="/hero-blur.png" // optional: add a low-quality image placeholder
+      />
+
+      {/* Foreground content */}
+      <div></div>
+      <div className="relative z-10 flex flex-col items-center gap-10">
+        <div className="md:text-8xl text-4xl font-semibold text-white px-14 py-4 md:border-10 border-5 rounded-full border-white">
+          Fresh Drops 
         </div>
+        <Link
+          href="/category/tshirt"
+          className="md:text-4xl text-2xl text-black font-semibold bg-white md:px-14 md:py-4 px-4 py-2 mt-4 border-10 rounded-full border-white"
+        >
+          SHOP NOW
+        </Link>
       </div>
+    </div>
 
       {/* product list */}
       <div className="w-full min-h-[80vh] justify-center py-4 gap-10 flex flex-col">

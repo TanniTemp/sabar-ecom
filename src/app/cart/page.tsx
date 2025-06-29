@@ -90,6 +90,7 @@ function Cart() {
 
     localStorage.setItem("Sabarcart", JSON.stringify(minimalCart));
   }
+  const disableCart = cartItems.length === 0;
 
   return (
     <div className="w-full pt-[100px] no-scrollbar min-h-[90vh] overflow-x-hidden relative py-10 md:px-10">
@@ -187,13 +188,16 @@ function Cart() {
               on prepaid orders
             </div>
           </div>
-          <button onClick={()=>{
+          <button 
+            disabled={disableCart}
+          onClick={()=>{
              const params = new URLSearchParams({
                
                 mode:"cart"
               })
-              router.push(`/checkout?${params.toString()}`);}} className="bg-[#FFCF00] font-semibold cursor-pointer w-full py-3 px-3 rounded-3xl text-2xl ">
-            Prodceed to Buy
+              
+              router.push(`/checkout?${params.toString()}`);}} className="bg-[#FFCF00] disabled:text-black font-semibold cursor-pointer w-full mx-auto py-3 px-3 rounded-3xl text-2xl ">
+            {disableCart ? "Your cart is empty" : "Proceeded to Buy"}
           </button>
         </div>
       </div>

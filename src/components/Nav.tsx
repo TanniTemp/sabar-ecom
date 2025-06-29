@@ -11,35 +11,20 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { motion } from "framer-motion";
 import Categories from "@/types/Categories";
 
-import { supabase } from "@/lib/client";
-import { useAuth } from "./AuthProvder";
 import { Button } from "./ui/button";
 import { useRouter } from "next/navigation";
+import { useAuth } from "./AuthProvder";
 
 
 function Nav() {
   const [nav, setnav] = React.useState(false);
   const router = useRouter()
-
-const {user} = useAuth();
-  const handleLogout = async () => {
+  const user = useAuth();
  
-    await supabase.auth.signOut()
-router.push( '/');
-
-  }
-  const[cartItems,setCartItems]=useState([])
-  useEffect(() => {
-    const stored = localStorage.getItem("Sabarcart");
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      setCartItems(parsed);
-    }
-  }, []);
   
   return (
     <div>
@@ -55,13 +40,7 @@ router.push( '/');
               className="md:w-[150px] md:h-[55px]"
             />
           </Link>
-        {
-          user&&
-            <button onClick={handleLogout} className="px-4 py-2 bg-red-600 text-white rounded">
-            Logout
-          </button>
-          
-        }
+     
         </div>
         {/* menu */}
         <div className=" flex items-center gap-6  font-semibold ">
@@ -96,9 +75,7 @@ router.push( '/');
           <div className="flex items-center gap-6 pr-3 md:pr-0">
             <Link href={"/cart"} className="relative ">
               <ShoppingBag className="md:h-6 md:w-6 h-6 w-6" />
-              <div className="absolute bottom-[60%] left-3 text-sm bg-white text-black h-4 w-4 flex items-center justify-center rounded-full">
-                {cartItems.length+1}
-              </div>
+            
             </Link>
            {
             user? <div>
